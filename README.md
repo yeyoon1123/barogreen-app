@@ -24,3 +24,11 @@ React Native 앱, React 관리자 웹 대시보드, Spring Boot 백엔드로 구
 - Frontend (Admin): React
 - Backend: Spring Boot, Java
 - Payment: KakaoPay API
+
+## 스크린샷
+
+![메인 지도 화면](./screenshots/map.png)
+
+![신고 내역](./screenshots/reports.png)
+
+![결제 화면](./screenshots/payment.png)
