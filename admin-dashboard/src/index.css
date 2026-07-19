@@ -1,0 +1,109 @@
+@font-face { font-family: "Pretendard"; src: local("Pretendard"), local("Pretendard Variable"); font-display: swap; }
+:root{
+  --bg:#f3f4f6; --card:#fff; --text:#111827; --muted:#6b7280;
+  --primary:#2563eb; --shadow:0 10px 20px rgba(0,0,0,.06),0 2px 6px rgba(0,0,0,.05);
+  --radius:16px;
+}
+*{ box-sizing:border-box }
+html,body,#root{ height:100% }
+body{ margin:0; font-family:Pretendard,system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans KR",Arial,"Apple SD Gothic Neo","Malgun Gothic",sans-serif; color:var(--text); background:var(--bg) }
+
+/* ===== 헤더(대시보드) */
+.header{ height:64px; display:flex; align-items:center; justify-content:space-between; padding:0 20px; background:var(--primary); color:#fff }
+.header .title{ font-size:20px; font-weight:800 }
+.header .right{ display:flex; align-items:center; gap:10px; }
+
+/* 알림 */
+.notif{ position:relative; display:inline-flex; }
+.bell{ width:28px; height:28px; display:inline-flex; align-items:center; justify-content:center; background:rgba(255,255,255,.15); border-radius:999px; border:none; cursor:pointer }
+.badge{
+  position:absolute; top:-6px; right:-6px;
+  min-width:18px; height:18px; padding:0 5px;
+  border-radius:999px; background:#ef4444; color:#fff; font-size:11px;
+  display:flex; align-items:center; justify-content:center;
+  border:2px solid var(--primary);
+}
+
+/* 알림 패널 */
+.notif-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,.1); z-index:40; }
+.notif-panel{
+  position:absolute; right:0; top:calc(100% + 10px);
+  width:340px; max-height:420px; z-index:50;
+  background:#fff; border:1px solid #e5e7eb; border-radius:12px; box-shadow:var(--shadow); overflow:hidden;
+}
+.notif-header{ display:flex; align-items:center; justify-content:space-between; padding:12px 14px; border-bottom:1px solid #f1f5f9; }
+.notif-actions .link{ background:none; border:none; color:#2563eb; font-weight:700; cursor:pointer; margin-left:8px }
+.notif-list{ max-height:360px; overflow:auto; }
+.notif-empty{ padding:20px; color:#6b7280; text-align:center; }
+.notif-item{
+  width:100%; border:none; background:#fff; cursor:pointer; text-align:left;
+  display:flex; align-items:flex-start; gap:10px; padding:12px 14px; border-bottom:1px solid #f9fafb;
+}
+.notif-item:hover{ background:#f9fafb; }
+.notif-item .dot{ width:8px; height:8px; border-radius:999px; background:#d1d5db; margin-top:6px }
+.notif-item .dot.on{ background:#ef4444; }
+.item-texts{ flex:1; min-width:0 }
+.item-title{ font-weight:800; font-size:14px; color:#111827; }
+.item-body{ font-size:13px; color:#374151; margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.item-time{ font-size:11px; color:#6b7280; margin-top:4px }
+
+/* 로그아웃(알약형) */
+.logout-btn{
+  appearance:none; -webkit-appearance:none;
+  display:inline-flex; align-items:center; gap:8px;
+  padding:9px 14px; border-radius:9999px;
+  background:#ffffff; color:#2563eb; border:1px solid #e5e7eb;
+  font-weight:700; font-size:14px; line-height:1; cursor:pointer;
+  box-shadow:0 1px 2px rgba(16,24,40,.06);
+  transition:background .2s, box-shadow .2s, transform .05s;
+}
+.logout-btn:hover{ background:#f8fafc; box-shadow:0 2px 8px rgba(16,24,40,.12); }
+.logout-btn:active{ transform:translateY(1px); }
+.logout-btn:focus-visible{ outline:2px solid #93c5fd; outline-offset:2px; }
+
+/* ===== 공통 레이아웃(대시보드) */
+.container{ max-width:1160px; margin:24px auto; padding:0 16px }
+.grid{ display:grid; grid-template-columns:1fr; gap:24px }
+@media (min-width:960px){ .grid{ grid-template-columns:1fr 1fr } }
+.card{ background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:20px }
+.card h3{ margin:0 0 14px; font-size:18px }
+.map-wrap{ height:330px; border-radius:12px; overflow:hidden; border:1px solid #e5e7eb }
+.table-wrap{ margin-top:28px; background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:0; overflow:hidden }
+.table-head{ padding:20px 20px 0 }
+.table{ width:100%; border-collapse:collapse }
+.table thead th{ text-align:left; font-size:14px; color:var(--muted); background:#f9fafb; border-bottom:1px solid #e5e7eb; padding:12px 16px }
+.table tbody td{ padding:18px 16px; border-bottom:1px solid #f1f5f9 }
+.empty{ text-align:center; color:var(--muted); padding:28px 0 }
+
+/* ===== 로그인 페이지 */
+.login-wrap{ min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px }
+.login-card{
+  width:100%; max-width:420px;
+  background:#fff; border-radius:16px; box-shadow:var(--shadow); padding:24px;
+}
+.login-title{ font-size:24px; font-weight:900; color:#111827; margin:0 0 8px }
+.login-sub{ color:#6b7280; margin:0 0 18px }
+
+/* 라벨+인풋 */
+.field{ display:block; margin-bottom:12px }
+.label{ display:block; font-size:12px; color:#6b7280; margin:0 0 6px }
+.input{
+  display:block; width:100%;
+  padding:12px 14px; border:1px solid #e5e7eb; border-radius:10px; font-size:14px;
+}
+.input:focus{ outline:2px solid #93c5fd; outline-offset:2px; }
+
+/* 기본 버튼(로그인 버튼 사용) */
+.primary-btn{
+  margin-top:6px; width:100%; padding:12px 14px;
+  border-radius:10px; background:#2563eb; color:#fff; font-weight:800;
+  border:none; cursor:pointer; transition:filter .2s, transform .05s;
+}
+.primary-btn:hover{ filter:brightness(1.05); }
+.primary-btn:active{ transform:translateY(1px); }
+
+.login-hint{ margin-top:12px; font-size:12px; color:#6b7280 }
+.err{ color:#dc2626; font-size:12px; margin-top:6px }
+
+/* Leaflet */
+@import "leaflet/dist/leaflet.css";

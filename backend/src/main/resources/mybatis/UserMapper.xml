@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.demo.mapper.UserMapper">
+
+  <!-- 회원가입: STATUS 기본 ACTIVE, JOINED_AT=SYSDATE -->
+  <insert id="insertUser">
+    INSERT INTO USERS (EMAIL, NAME, PASSWORD, STATUS, JOINED_AT)
+    VALUES (
+      #{email},
+      #{name},
+      #{password},
+      NVL(#{status}, 'ACTIVE'),
+      SYSDATE
+    )
+  </insert>
+
+  <!-- 비밀번호 재설정 -->
+  <update id="updatePassword">
+    UPDATE USERS
+       SET PASSWORD = #{password}
+     WHERE LOWER(EMAIL) = LOWER(#{email})
+  </update>
+
+  <!-- 이메일로 사용자 조회 (상태/가입일 포함) -->
+  <select id="findByEmail" resultType="com.example.demo.model.User">
+    SELECT EMAIL, NAME, PASSWORD, STATUS, JOINED_AT
+      FROM USERS
+     WHERE LOWER(EMAIL) = LOWER(#{email})
+  </select>
+
+  <!-- 이메일 존재 여부: 1/0 반환 -->
+  <select id="existsByEmail" parameterType="string" resultType="int">
+    SELECT CASE WHEN COUNT(1) > 0 THEN 1 ELSE 0 END
+      FROM USERS
+     WHERE LOWER(EMAIL) = LOWER(#{email})
+  </select>
+
+  <!-- 로그인: ACTIVE 인 계정만 통과 -->
+  <select id="findActiveByCredentials" resultType="com.example.demo.model.User">
+    SELECT EMAIL, NAME, PASSWORD, STATUS, JOINED_AT
+      FROM USERS
+     WHERE LOWER(EMAIL) = LOWER(#{email})
+       AND PASSWORD = #{password}
+       AND STATUS = 'ACTIVE'
+  </select>
+</mapper>

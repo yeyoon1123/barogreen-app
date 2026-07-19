@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.demo.mapper.PaymentMapper">
+
+  <resultMap id="PaymentMap" type="com.example.demo.model.Payment">
+    <id     column="PAYMENT_ID" property="id"/>
+    <result column="ORDER_ID"   property="orderId"/>
+    <result column="ITEM_NAME"  property="itemName"/>
+    <result column="AMOUNT"     property="amount"/>
+    <result column="STATUS"     property="status"/>
+    <result column="PAID_AT"    property="paidAt"/>
+  </resultMap>
+
+  <!-- 전체 조회 (데모용: 유저 구분 없이) -->
+  <select id="findAll" resultMap="PaymentMap">
+    SELECT
+      PAYMENT_ID,
+      ORDER_ID,
+      ITEM_NAME,
+      AMOUNT,
+      STATUS,
+      TO_CHAR(PAID_AT, 'YYYY-MM-DD HH24:MI') AS PAID_AT
+    FROM PAYMENTS
+    ORDER BY PAID_AT DESC
+  </select>
+
+  <!-- 승인 시 저장 -->
+  <insert id="insert" parameterType="com.example.demo.model.Payment">
+    <selectKey keyProperty="id" resultType="long" order="BEFORE">
+      SELECT PAYMENTS_SEQ.NEXTVAL FROM DUAL
+    </selectKey>
+    INSERT INTO PAYMENTS (
+      PAYMENT_ID, ORDER_ID, ITEM_NAME, AMOUNT, STATUS, PAID_AT
+    ) VALUES (
+      #{id}, #{orderId}, #{itemName}, #{amount}, #{status}, SYSTIMESTAMP
+    )
+  </insert>
+
+</mapper>

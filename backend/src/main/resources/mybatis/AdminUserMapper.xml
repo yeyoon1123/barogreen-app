@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.demo.mapper.AdminUserMapper">
+
+  <!-- resultMap: 컬럼 ↔ 필드 매핑 명시 -->
+  <resultMap id="UserMap" type="com.example.demo.model.AdminUser">
+    <id     property="email"    column="EMAIL"/>
+    <result property="name"     column="NAME"/>
+    <result property="password" column="PASSWORD"/>
+    <result property="status"   column="STATUS"/>
+    <result property="joinedAt" column="JOINED_AT"/>
+  </resultMap>
+
+  <!-- 공통 컬럼 -->
+  <sql id="Base_Column_List">
+    EMAIL, NAME, PASSWORD, STATUS, JOINED_AT
+  </sql>
+
+  <!-- 목록 조회 (Oracle 11g 호환 페이징) -->
+  <select id="find" resultMap="UserMap">
+    SELECT EMAIL, NAME, PASSWORD, STATUS, JOINED_AT
+    FROM (
+      SELECT
+        u.EMAIL, u.NAME, u.PASSWORD, u.STATUS, u.JOINED_AT,
+        ROW_NUMBER() OVER (ORDER BY u.JOINED_AT DESC NULLS LAST) AS rn
+      FROM USERS u
+      WHERE 1=1
+        <if test="q != null and q != ''">
+          AND (LOWER(u.NAME)  LIKE '%' || LOWER(#{q}) || '%'
+               OR LOWER(u.EMAIL) LIKE '%' || LOWER(#{q}) || '%')
+        </if>
+        <if test="status != null and status != ''">
+          AND u.STATUS = #{status}
+        </if>
+    )
+    WHERE rn BETWEEN (#{offset} + 1) AND (#{offset} + #{size})
+  </select>
+
+  <!-- 전체 카운트 -->
+  <select id="count" resultType="int">
+    SELECT COUNT(*)
+    FROM USERS u
+    WHERE 1=1
+      <if test="q != null and q != ''">
+        AND (LOWER(u.NAME)  LIKE '%' || LOWER(#{q}) || '%'
+             OR LOWER(u.EMAIL) LIKE '%' || LOWER(#{q}) || '%')
+      </if>
+      <if test="status != null and status != ''">
+        AND u.STATUS = #{status}
+      </if>
+  </select>
+
+  <!-- 상태/이름 수정 -->
+  <update id="updateByEmail">
+    UPDATE USERS
+       SET
+         <if test="name != null">   NAME   = #{name},   </if>
+         <if test="status != null"> STATUS = #{status}, </if>
+         JOINED_AT = JOINED_AT
+     WHERE EMAIL = #{email}
+  </update>
+
+  <!-- 삭제 -->
+  <delete id="deleteByEmail">
+    DELETE FROM USERS
+    WHERE EMAIL = #{email}
+  </delete>
+
+</mapper>

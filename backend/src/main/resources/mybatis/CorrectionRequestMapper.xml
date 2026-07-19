@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.demo.mapper.CorrectionRequestMapper">
+
+  <resultMap id="CorrectionRequestMap" type="com.example.demo.model.CorrectionRequest">
+    <id     column="ID"                  property="id"/>
+    <result column="REPORT_ID"           property="reportId"/>
+    <result column="REASON"              property="reason"/>
+    <result column="STATUS"              property="status"/>
+    <result column="REQUESTER_LOGIN_ID"  property="requesterLoginId"/>
+    <result column="CREATED_AT"          property="createdAt"/>
+    <result column="UPDATED_AT"          property="updatedAt"/>
+    <!-- ✅ 신고자 로그인ID (REPORTS.REPORTER_ID를 create 시점에 복사) -->
+    <result column="REPORTER_ID"         property="reporterId"/>
+  </resultMap>
+
+  <!-- 생성 -->
+  <insert id="insert" parameterType="com.example.demo.model.CorrectionRequest">
+    <selectKey keyProperty="id" resultType="long" order="BEFORE">
+      SELECT CORRECTION_REQ_SEQ.NEXTVAL FROM DUAL
+    </selectKey>
+    INSERT INTO CORRECTION_REQUESTS
+      (ID, REPORT_ID, REASON, STATUS, REQUESTER_LOGIN_ID, REPORTER_ID, CREATED_AT, UPDATED_AT)
+    VALUES
+      (#{id}, #{reportId}, #{reason}, #{status},
+       #{requesterLoginId}, #{reporterId}, SYSTIMESTAMP, SYSTIMESTAMP)
+  </insert>
+
+  <!-- 전체 목록 (관리자 페이지) -->
+  <!-- ✅ 이제 REPORTS와 조인하지 않고, 자신의 REPORTER_ID 컬럼만 사용 -->
+  <select id="findAll" resultMap="CorrectionRequestMap">
+    SELECT
+      ID,
+      REPORT_ID,
+      REASON,
+      STATUS,
+      REQUESTER_LOGIN_ID,
+      REPORTER_ID,
+      CREATED_AT,
+      UPDATED_AT
+    FROM CORRECTION_REQUESTS
+    ORDER BY CREATED_AT DESC
+  </select>
+
+  <!-- 상태 변경 (승인/반려 등) -->
+  <update id="updateStatus" parameterType="map">
+    UPDATE CORRECTION_REQUESTS
+    SET STATUS = #{status},
+        UPDATED_AT = SYSTIMESTAMP
+    WHERE ID = #{id}
+  </update>
+
+  <!-- 신고 삭제 시 해당 신고의 정정요청 상태를 'DELETED'로 표시 -->
+  <update id="markResolvedByReportId" parameterType="long">
+    UPDATE CORRECTION_REQUESTS
+    SET STATUS = 'DELETED',
+        UPDATED_AT = SYSTIMESTAMP
+    WHERE REPORT_ID = #{reportId}
+  </update>
+
+</mapper>

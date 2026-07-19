@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.demo.mapper.ReportMapper">
+
+  <!-- ====================== 결과 매핑 ====================== -->
+  <resultMap id="ReportMap" type="com.example.demo.model.Report">
+    <id     column="REPORT_ID"   property="reportId"/>
+    <result column="LAT"         property="lat"/>
+    <result column="LNG"         property="lng"/>
+    <result column="STATUS"      property="status"/>
+    <result column="PHOTO_URI"   property="photoUri"/>
+    <result column="ADDRESS"     property="address"/>
+    <result column="NOTE"        property="note"/>
+    <result property="completedPhoto" column="COMPLETED_PHOTO"/> 
+    <result column="REPORTED_AT" property="reportedAt"/>
+    <result column="CATEGORY" property="category"/>
+    <result column="REPORTER_ID"   property="reporterId"/>
+<!-- (선택) 프론트 호환 -->
+<result column="CATEGORY" property="trashType" />
+<result column="CATEGORY" property="trashTypeLabel" />
+  </resultMap>
+
+  <!-- ====================== 단건 조회 ====================== -->
+  <select id="findById" parameterType="long" resultMap="ReportMap">
+    SELECT *
+    FROM REPORTS
+    WHERE REPORT_ID = #{id}
+  </select>
+
+  <!-- ====================== 뷰포트 조회 ====================== -->
+  <select id="findByViewport" resultMap="ReportMap">
+    SELECT *
+    FROM REPORTS
+    WHERE LAT BETWEEN #{swLat} AND #{neLat}
+      AND LNG BETWEEN #{swLng} AND #{neLng}
+    ORDER BY REPORTED_AT DESC
+  </select>
+
+  <!-- ====================== 관리자 리스트 (검색 + 페이징, 11g) ====================== -->
+  <!-- 파라미터: offset(int), size(int), q(optional), status(optional) -->
+  <select id="searchPaged" parameterType="map" resultMap="ReportMap">
+    <!-- startRow / endRow 계산: startRow = offset, endRow = offset + size -->
+    <bind name="startRow" value="offset"/>
+    <bind name="endRow"   value="offset + size"/>
+
+    SELECT *
+    FROM (
+      SELECT a.*, ROWNUM rn
+      FROM (
+        SELECT
+          r.REPORT_ID,
+          r.LAT,
+          r.LNG,
+          r.STATUS,
+          r.PHOTO_URI,
+          r.ADDRESS,
+          r.NOTE,
+          r.COMPLETED_PHOTO, 
+          r.REPORTED_AT,
+          r.CATEGORY,
+          r.REPORTER_ID 
+        FROM REPORTS r
+        <where>
+          <if test="status != null and status != ''">
+            AND LOWER(r.STATUS) = LOWER(#{status})
+          </if>
+          <if test="q != null and q != ''">
+            AND (
+              LOWER(r.ADDRESS) LIKE '%' || LOWER(#{q}) || '%'
+              OR LOWER(r.NOTE)  LIKE '%' || LOWER(#{q}) || '%'
+            )
+          </if>
+        </where>
+        ORDER BY r.REPORTED_AT DESC
+      ) a
+      WHERE ROWNUM &lt;= #{endRow}
+    )
+    WHERE rn &gt; #{startRow}
+  </select>
+
+  <!-- 총 개수 -->
+  <select id="countSearch" parameterType="map" resultType="int">
+    SELECT COUNT(*)
+    FROM REPORTS r
+    <where>
+      <if test="status != null and status != ''">
+        AND LOWER(r.STATUS) = LOWER(#{status})
+      </if>
+      <if test="q != null and q != ''">
+        AND (
+          LOWER(r.ADDRESS) LIKE '%' || LOWER(#{q}) || '%'
+          OR LOWER(r.NOTE)  LIKE '%' || LOWER(#{q}) || '%'
+        )
+      </if>
+    </where>
+  </select>
+
+  <!-- ====================== 생성 ====================== -->
+ <!-- ✅ REPORT_ID 사용 + keyProperty=reportId 로 통일 -->
+  <insert id="insert" parameterType="com.example.demo.model.Report">
+    <selectKey keyProperty="reportId" resultType="long" order="BEFORE">
+      SELECT REPORTS_SEQ.NEXTVAL FROM DUAL
+    </selectKey>
+    INSERT INTO REPORTS
+  (REPORT_ID, LAT, LNG, ADDRESS, NOTE, STATUS, PHOTO_URI, COMPLETED_PHOTO, CATEGORY,REPORTER_ID, REPORTED_AT)
+VALUES
+  (#{reportId}, #{lat}, #{lng}, #{address}, #{note}, #{status}, #{photoUri}, #{completedPhoto}, #{category},#{reporterId}, SYSTIMESTAMP)
+
+  </insert>
+
+  <!-- ====================== 상태 변경 ====================== -->
+  <update id="updateStatus" parameterType="map">
+    UPDATE REPORTS
+    SET STATUS = #{status}
+    WHERE REPORT_ID = #{id}
+  </update>
+  
+ <!-- ✅ REPORT_ID 기준으로 완료사진까지 저장 -->
+  <update id="updateStatusAndPhoto" parameterType="map">
+    UPDATE REPORTS
+       SET STATUS = #{status},
+           COMPLETED_PHOTO = #{completedPhoto}
+     WHERE REPORT_ID = #{id}
+  </update>
+
+
+  <!-- ====================== 삭제 ====================== -->
+  <delete id="deleteById" parameterType="long">
+    DELETE FROM REPORTS WHERE REPORT_ID = #{id}
+  </delete>
+
+</mapper>

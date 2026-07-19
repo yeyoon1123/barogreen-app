@@ -1,0 +1,92 @@
+/* src/styles/barogreen.css */
+/* ===== BaroGreen Design Tokens ===== */
+:root{
+  --bg: #F7FAF5;
+  --green: #34D399;        /* emerald-400 */
+  --green-dark: #10B981;   /* emerald-500 */
+  --green-fade: #E9F9F0;   /* soft bg blob */
+  --ink: #5B7285;
+  --border-mute: #E7EEF2;
+  --card-bg: #ffffff;
+  --shadow-1: 0 2px 8px rgba(16,185,129,.10);
+}
+
+/* 페이지 기본 배경/텍스트 */
+html, body, #root{
+  height:100%;
+  background: var(--bg);
+  color:#1f2937;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, "Noto Sans KR", Arial, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+}
+
+/* 상단 헤더(그라데이션 바) */
+.bg-baro-header{
+  background: linear-gradient(90deg, var(--green) 0%, var(--green-dark) 100%);
+}
+
+/* 둥근 카드 공통 */
+.baro-card{
+  background: var(--card-bg);
+  border: 1px solid var(--border-mute);
+  border-radius: 20px;
+  box-shadow: var(--shadow-1);
+}
+
+/* 토널 버튼 */
+.btn-tonal{
+  background:#F2FBF7;
+  border:1px solid #CFEFE2;
+  color:var(--green-dark);
+  border-radius:18px;
+}
+
+/* 프라이머리(가득) 버튼 */
+.btn-primary-baro{
+  background: var(--green);
+  color:#fff;
+  border-radius:18px;
+  border:none;
+  box-shadow: 0 4px 10px rgba(16,185,129,.18);
+}
+.btn-primary-baro:hover{ filter:brightness(0.98); }
+
+/* 아웃라인 버튼 */
+.btn-outline-baro{
+  background:#fff;
+  border:2px solid var(--green);
+  color:var(--green-dark);
+  border-radius:18px;
+  font-weight:800;
+}
+
+/* 아이콘 배지(알림) */
+.badge-baro{
+  position:absolute; top:-6px; right:-6px;
+  background:#16a34a; color:#fff;
+  border-radius:9999px; padding:2px 7px; font-size:12px; min-width:20px; text-align:center;
+  box-shadow:0 0 0 2px #fff;
+}
+
+/* 사이드바 */
+.sidebar-baro{
+  background:#fff; border-right:1px solid var(--border-mute);
+  box-shadow: 2px 0 8px rgba(0,0,0,.06);
+  border-top-right-radius: 16px;
+  border-bottom-right-radius: 16px;
+}
+.sidebar-baro a{
+  display:block; padding:10px 14px; border-radius:12px; color:#334155; text-decoration:none; font-weight:600;
+}
+.sidebar-baro a:hover{ background:#F2FBF7; color:var(--green-dark); }
+
+/* 드롭패널(알림 패널) */
+.panel-baro{
+  background:#fff; border:1px solid var(--border-mute);
+  border-radius:16px; box-shadow:0 8px 20px rgba(0,0,0,.10);
+  overflow:hidden;
+}
+
+/* 지도 컨테이너(맵 카드 안쪽 여백용) */
+.map-host-rounded{
+  border-radius:16px; overflow:hidden;
+}

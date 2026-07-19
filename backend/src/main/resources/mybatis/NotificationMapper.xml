@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.NotificationMapper">
+
+    <resultMap id="NotificationMap" type="com.example.demo.model.Notification">
+        <id     property="id"             column="ID"/>
+        <!-- 컬럼 LOGIN_ID ↔︎ 자바 필드 memberLoginId -->
+        <result property="memberLoginId"  column="LOGIN_ID"/>
+        <result property="reportId"       column="REPORT_ID"/>
+        <result property="message"        column="MESSAGE"/>
+        <result property="createdAt"      column="CREATED_AT"/>
+        <!-- READ_YN('Y'/'N') → boolean read -->
+        <result property="read"           column="READ"/>
+    </resultMap>
+
+    <!-- INSERT: 새 알림은 항상 미읽음(N)으로 -->
+    <insert id="insert" parameterType="com.example.demo.model.Notification">
+        INSERT INTO NOTIFICATIONS
+            (ID,
+             LOGIN_ID,
+             REPORT_ID,
+             MESSAGE,
+             READ_YN,
+             CREATED_AT)
+        VALUES
+            (NOTIFICATIONS_SEQ.NEXTVAL,
+             #{memberLoginId},
+             #{reportId},
+             #{message},
+             'N',
+             #{createdAt})
+    </insert>
+
+    <!-- 로그인ID로 목록 조회 -->
+    <select id="findByLoginId" resultMap="NotificationMap">
+        SELECT
+            ID,
+            LOGIN_ID,
+            REPORT_ID,
+            MESSAGE,
+            CREATED_AT,
+            CASE WHEN READ_YN = 'Y' THEN 1 ELSE 0 END AS READ
+        FROM NOTIFICATIONS
+        WHERE LOGIN_ID = #{loginId}
+        ORDER BY CREATED_AT DESC
+    </select>
+
+</mapper>

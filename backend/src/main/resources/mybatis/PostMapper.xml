@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.PostMapper">
+
+  <resultMap id="PostMap" type="com.example.demo.model.Post">
+    <id     column="ID"         property="id"/>
+    <result column="TITLE"      property="title"/>
+    <result column="CONTENT"    property="content"/>
+    <result column="AUTHOR"     property="author"/>
+    <result column="CREATED_AT" property="createdAt"/>
+    <result column="HIDDEN"     property="hidden"/>
+  </resultMap>
+
+  <!-- 공통 where (검색/숨김필터) -->
+  <sql id="where">
+    <where>
+      <if test="q != null and q != ''">
+        (
+          LOWER(TITLE)  LIKE '%'||LOWER(#{q})||'%'
+          OR REGEXP_LIKE(CONTENT, #{q}, 'i')
+          OR LOWER(AUTHOR) LIKE '%'||LOWER(#{q})||'%'
+        )
+      </if>
+      <if test="hidden != null">
+        AND NVL(HIDDEN,0) = #{hidden}
+      </if>
+    </where>
+  </sql>
+
+  <!-- 공개(앱): 숨김 제외 -->
+  <select id="findVisible" resultMap="PostMap">
+    SELECT *
+      FROM POSTS
+     WHERE NVL(HIDDEN,0) = 0
+     ORDER BY CREATED_AT DESC
+  </select>
+
+  <!-- 관리자: 전체 -->
+  <select id="findAll" resultMap="PostMap">
+    SELECT * FROM POSTS
+    ORDER BY CREATED_AT DESC
+  </select>
+
+  <!-- 관리자: 목록(검색/숨김/페이징) -->
+  <select id="findList" resultMap="PostMap">
+    SELECT *
+      FROM (
+        SELECT a.*, ROWNUM rn
+          FROM (
+            SELECT * FROM POSTS
+            <include refid="where"/>
+            ORDER BY CREATED_AT DESC
+          ) a
+         WHERE ROWNUM &lt;= #{offset} + #{limit}
+      )
+     WHERE rn &gt; #{offset}
+  </select>
+
+  <!-- 관리자: 카운트 -->
+  <select id="count" resultType="int">
+    SELECT COUNT(*)
+      FROM POSTS
+    <include refid="where"/>
+  </select>
+
+  <select id="findById" resultMap="PostMap">
+    SELECT * FROM POSTS WHERE ID = #{id}
+  </select>
+
+  <!-- 시퀀스명은 DB에 있는 POSTS_SEQ 사용 -->
+  <insert id="insert" parameterType="com.example.demo.model.Post">
+    <selectKey keyProperty="id" resultType="long" order="BEFORE">
+      SELECT POSTS_SEQ.NEXTVAL FROM DUAL
+    </selectKey>
+    INSERT INTO POSTS (ID, TITLE, CONTENT, AUTHOR, CREATED_AT, HIDDEN)
+    VALUES (#{id}, #{title}, #{content}, #{author}, SYSTIMESTAMP, NVL(#{hidden},0))
+  </insert>
+
+  <!-- 공개 수정: 작성자 검증 -->
+  <update id="update" parameterType="com.example.demo.model.Post">
+    UPDATE POSTS
+       SET TITLE   = #{title},
+           CONTENT = #{content}
+     WHERE ID = #{id}
+       AND LOWER(AUTHOR) = LOWER(#{author})
+  </update>
+
+  <delete id="delete">
+    DELETE FROM POSTS
+     WHERE ID = #{id}
+       AND LOWER(AUTHOR) = LOWER(#{author})
+  </delete>
+
+  <!-- 관리자: 숨김 토글 -->
+  <update id="updateHidden">
+    UPDATE POSTS SET HIDDEN = #{hidden} WHERE ID = #{id}
+  </update>
+
+  <!-- 관리자: 강제 삭제 -->
+  <delete id="deleteById">
+    DELETE FROM POSTS WHERE ID = #{id}
+  </delete>
+
+</mapper>
