@@ -27,8 +27,17 @@ React Native 앱, React 관리자 웹 대시보드, Spring Boot 백엔드로 구
 
 ## 스크린샷
 
-![메인 지도 화면](./screenshots/map.png)
+### 메인 지도 화면
+<img src="./screenshots/map.png" width="300"/>
 
-![신고 내역](./screenshots/reports.png)
+지도 기반으로 현재 위치와 신고 현황을 확인할 수 있습니다.
 
-![결제 화면](./screenshots/payment.png)
+### 신고 내역
+<img src="./screenshots/reports.png" width="300"/>
+
+접수된 신고 내역을 상태별로 확인할 수 있습니다.
+
+### 결제 화면
+<img src="./screenshots/payment.png" width="300"/>
+
+카카오페이 연동 결제 및 쿠폰 할인이 적용됩니다.
